@@ -1,13 +1,11 @@
 import React from 'react';
 import { Link, NavLink } from 'react-router-dom';
 
+const style = { color: 'green' };
 const Header = () => {
-
-  const style = { color : 'green' }
-
   return (
     <div>
-      <nav className='navbar navbar-expand-lg navbar-light' >
+      <nav className='navbar navbar-expand-lg navbar-light'>
         <div className='container'>
           <Link to='/' className='navbar-brand h1' style={style}>
             Connect Bazzar
