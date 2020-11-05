@@ -3,6 +3,7 @@ import axios from 'axios';
 
 // Custom hook - Hook is just a function with args or without args
 export default url => {
+  // base url
   const baseUrl = 'http://localhost:5000';
 
   // true - when starting fetching, false - when done fetching
@@ -10,10 +11,11 @@ export default url => {
   const [response, setResponse] = useState(null);
   const [error, setError] = useState(null);
 
+  // to store request params in state
   const [options, setOptions] = useState({});
 
-  // custom hook - doFetch function
-  // options - params for axios call
+  // custom hook - doFetch function to make call to api
+  // options - request params object for axios call
   const doFetch = (options = {}) => {
     setOptions(options)
     // this triggers our effect
@@ -24,6 +26,9 @@ export default url => {
   const notLoading = isLoading === false;
 
   useEffect(() => {
+    // when our component rendered first time
+    let isMounted = true;
+
     // if not loading, return null & exit
     // don't need to do anything in our effect
     // we are calling effect every time but
@@ -40,16 +45,28 @@ export default url => {
 
     axios(baseUrl + url, options)
       .then(res => {
-        setResponse(res.data);
-        setIsLoading(false);
+        if (isMounted) {
+          setResponse(res.data);
+          setIsLoading(false);
+        }
       })
       .catch(error => {
-        setError(error.response.data);
-        setIsLoading(false);
+        if (isMounted) {
+          setError(error.response.data);
+          setIsLoading(false);
+        }
       });
-  }, [isLoading]); // gets trigger when loading prop is changing
 
-  // array with two args - object's props states & function
+    // clean up method to prevent Memory leak
+    // Memory leak occurs when changing the state of an unmounted component
+    return () => {
+      isMounted = false
+    }
+
+     // gets triggered/rendered only when loading prop's value changes
+  }, [isLoading]);
+
+  // array with two args - Object with props states & function
   // destructuring to use above response data properties
   return [{ isLoading, response, error }, doFetch];
 };

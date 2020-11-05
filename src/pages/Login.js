@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
-
 import { Form, Button } from 'react-bootstrap';
 import useFetch from '../hooks/useFetch';
 
@@ -45,6 +43,17 @@ function Login() {
     setPassword(e.target.value);
   };
 
+  // loading object
+  if (isLoading) {
+    return <div>Data is being loaded!</div>;
+  }
+
+  // error object
+  if (error) {
+    return <div>Error occurred: {error}</div>;
+  }
+
+
   return (
     <div className='container'>
       <Form onSubmit={handleFormSubmit}>
@@ -73,7 +82,7 @@ function Login() {
         </Form.Group>
 
         <Button variant='primary' type='submit' disabled={isLoading}>
-          Submit
+          Login
         </Button>
       </Form>
     </div>
