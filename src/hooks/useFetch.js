@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 
 // Custom hook - Hook is just a function with args or without args
-export default url => {
+// This useFetch hook takes an argument - url arg, to fetch data
+export default (url) => {
   // base url
   const baseUrl = 'http://localhost:5000';
 
@@ -64,7 +65,9 @@ export default url => {
     }
 
      // gets triggered/rendered only when loading prop's value changes
-  }, [isLoading]);
+  }, [isLoading, notLoading, options, url]);
+
+  // console.log('useEffect1')
 
   // array with two args - Object with props states & function
   // destructuring to use above response data properties
