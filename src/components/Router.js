@@ -10,6 +10,7 @@ const Router = () => {
     <Switch>
       <Route exact path='/' component={GlobalFeed} />
       <Route path='/login' component={Login} />
+      <Route path='/register' component={Login} />
       <Route path='/articles/:slug' component={Article} />
     </Switch>
   );
