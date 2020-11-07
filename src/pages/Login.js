@@ -6,6 +6,7 @@ import useLocalStorage from '../hooks/useLocalStorage';
 import { useAuth } from '../context/auth.context';
 
 function Login(props) {
+  // console.log(props)
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -13,15 +14,18 @@ function Login(props) {
   // to set user token in local storage
   const [isSuccessfulSubmit, setIsSuccessfulSubmit] = useState(false);
 
-  // to direct to login or register - using path prop of match object
+  // to direct to login or register page
+  // using path prop of match object of route props
   const isLogin = props.match.path === '/login';
-  // console.log(isLogin) returns true
+  // console.log(isLogin)
+  // if we are in login page, returns true
+  // if we are not in login page, returns false
 
   const pageTitle = isLogin ? 'Sign In' : 'Sign Up';
   const navigationLink = isLogin ? '/register' : '/login';
   const navigationText = isLogin
-    ? 'Create an account?'
-    : 'Already have an account?';
+    ? 'Need an account? Click here to create one!'
+    : 'Already have an account? Login here!';
 
   // api urls
   const apiUrl = isLogin ? '/login' : '/signup';
@@ -30,42 +34,48 @@ function Login(props) {
   // state: state is object's state props
   // setState: setter function - doFetch custom function
   const [{ isLoading, error, response }, doFetch] = useFetch(apiUrl);
-  // console.log('useFetch', isLoading, error, response)
+  console.log('useFetch', isLoading, error, response);
 
   // useLocalStorage hook takes the token key &
   // stores the value in the local storage & updates our state
-  const [setToken] = useLocalStorage('token'); // key - token
+  // token is key & value is user token
+  const [, setToken] = useLocalStorage('token'); // key
   // console.log('token', token)
 
   // auth context object
-  const [ currentUserState, setCurrentUserState] = useAuth();
-  console.log('currentUserState', currentUserState)
+  const [, setCurrentUserState] = useAuth();
 
   // saving a user token is side effect
   // basically, we want to call this useEffect only
   // when we get response object & updates to it
   useEffect(() => {
-    let isMounted = true;
-
-    // no response object
+    // if no response object, exit
     if (!response) {
-      return null;
+      return;
     }
 
-    if (isMounted) {
-      // storing user token in localStorage for auth
-      setToken(response.token);
-      // localStorage.setItem('token', response.token) // key/value
+    // if response object, run this code
+    // storing user token in useLocalStorage hook & to update app state
+    setToken(response.token);
+    // localStorage.setItem('token', response.token); // key/value
 
-      // setting user token in local storage
-      setIsSuccessfulSubmit(true);
-    }
+    // user sign up got successful &  setting user token in local storage
+    // this value will help us to redirect user after sign up
+    setIsSuccessfulSubmit(true);
 
-    // clean up
-    return () => {
-      isMounted = false
-    }
-  }, [response, setToken]);
+    // updating auth state inside context object
+    setCurrentUserState(state => ({
+      ...state,
+      isLoggedIn: true, // user is logged in now
+      isLoading: false, // done loading user data
+      currentUser: response.token, // updating response object in auth state
+    }));
+  }, [response, setCurrentUserState, setToken]);
+
+  // using Redirect component of react router to redirect user after sign up
+  if (isSuccessfulSubmit) {
+    return <Redirect to='/' />;
+  }
 
   const handleFormSubmit = e => {
     e.preventDefault();
@@ -80,7 +90,6 @@ function Login(props) {
       // user data for authentication
       data: user,
     });
-
     // making api request here when true
     // setIsSubmitting(true);
     // console.log(email, password);
@@ -111,27 +120,20 @@ function Login(props) {
     );
   }
 
-  // error object
-  if (error) {
-    return (
-      <div className='alert alert-danger' role='alert'>
-        Error occurred: {error}
-      </div>
-    );
-  }
-
-  // redirecting user after storing token
-  if (isSuccessfulSubmit) {
-    return <Redirect to='/' />;
-  }
-
   return (
     <div className='container'>
       <div className='row justify-content-center'>
-        <div className='col-xs-12 col-sm-6 col-lg-3'>
+        <div className='col-xs-12 col-sm-6 col-lg-4'>
           <Form onSubmit={handleFormSubmit}>
             <h1 className='text-xs-center'>{pageTitle}</h1>
 
+            {error && (
+              <div className='alert alert-danger text-center' role='alert'>
+                Error occurred: {error}
+              </div>
+            )}
+
+            {/** if we are not in login page - false value, render this input */}
             {!isLogin && (
               <Form.Group>
                 <Form.Label>Username</Form.Label>

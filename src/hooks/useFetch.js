@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // Custom hook - Hook is just a function with args or without args
 // This useFetch hook takes an argument - url arg, to fetch data
-export default (url) => {
+export default (url) => { // url param
   // base url
   const baseUrl = 'http://localhost:5000';
 
@@ -19,41 +19,40 @@ export default (url) => {
   // options - request params object for axios call
   const doFetch = (options = {}) => {
     setOptions(options)
-    // this triggers our effect
+    // this triggers our effect to make request
     setIsLoading(true)
   };
 
   // helper variable updater pattern
-  const notLoading = isLoading === false;
+  // const notLoading = isLoading === false;
 
   useEffect(() => {
     // when our component rendered first time
     let isMounted = true;
 
-    // if not loading, return null & exit
-    // don't need to do anything in our effect
-    // we are calling effect every time but
-    // if loading is true, only then we will make request
-    // if (!isLoading) {
-    //   return null;
-    // }
-
-    // same as above but good approach since we are not changing it directly
-    // may cause issues when state gets updated asynchronously
-    if (notLoading) {
-      return null;
+    // we are inside of useEffect so, 
+    // same initial value of isLoading in our state - false
+    // if not loading or loading is false, exit or stop execution useEffect func
+    if (!isLoading) { // starting with false value
+      return 
     }
+   
+    // Returning null is usually the best idea if you intend to indicate that no data is available.
+    // Blank return" statements can be used to stop executing a function for some reason - ex: validations etc).
 
+    // NOTE: if isLoading is not false or loading is true, we want to run useEffect to make api request
+
+    // baseurl + end url param + request methods
     axios(baseUrl + url, options)
       .then(res => {
         if (isMounted) {
-          setResponse(res.data);
+          setResponse(res.data); // axios
           setIsLoading(false);
         }
       })
       .catch(error => {
         if (isMounted) {
-          setError(error.response.data);
+          setError(error.message);
           setIsLoading(false);
         }
       });
@@ -63,11 +62,9 @@ export default (url) => {
     return () => {
       isMounted = false
     }
-
+    
      // gets triggered/rendered only when loading prop's value changes
-  }, [isLoading, notLoading, options, url]);
-
-  // console.log('useEffect1')
+  }, [isLoading, options, response, url]);
 
   // array with two args - Object with props states & function
   // destructuring to use above response data properties
