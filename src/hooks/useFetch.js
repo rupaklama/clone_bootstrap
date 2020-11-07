@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import useLocalStorage from './useLocalStorage';
 
 // Custom hook - Hook is just a function with args or without args
 // This useFetch hook takes an argument - url arg, to fetch data
@@ -14,6 +15,10 @@ export default (url) => { // url param
 
   // to store request params in state
   const [options, setOptions] = useState({});
+
+  // getting user token from local storage to add in header of options
+  const [token] = useLocalStorage('token')
+  // console.log(token)
 
   // custom hook - doFetch function to make call to api
   // options - request params object for axios call
@@ -37,13 +42,23 @@ export default (url) => { // url param
       return 
     }
    
+    // new ajax request with header for auth
+    const requestOptions = {
+      ...options, // param object - method(get,post) / body(user data)
+      ...{
+        headers: { // adding user token for auth
+          authorization: token ? `Token ${token}` : ''
+        }
+      }
+    }
+
     // Returning null is usually the best idea if you intend to indicate that no data is available.
     // Blank return" statements can be used to stop executing a function for some reason - ex: validations etc).
 
     // NOTE: if isLoading is not false or loading is true, we want to run useEffect to make api request
 
-    // baseurl + end url param + request methods
-    axios(baseUrl + url, options)
+    // baseurl + end url param + request methods with header
+    axios(baseUrl + url, requestOptions)
       .then(res => {
         if (isMounted) {
           setResponse(res.data); // axios

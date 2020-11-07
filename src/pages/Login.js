@@ -3,7 +3,8 @@ import { Link, Redirect } from 'react-router-dom';
 import { Form, Button } from 'react-bootstrap';
 import useFetch from '../hooks/useFetch';
 import useLocalStorage from '../hooks/useLocalStorage';
-import { useAuth } from '../context/auth.context';
+import { useAuthContext } from '../context/auth.context';
+import BackendErrorMessages from '../components/auth/BackendErrorMessages';
 
 function Login(props) {
   // console.log(props)
@@ -34,7 +35,7 @@ function Login(props) {
   // state: state is object's state props
   // setState: setter function - doFetch custom function
   const [{ isLoading, error, response }, doFetch] = useFetch(apiUrl);
-  console.log('useFetch', isLoading, error, response);
+  // console.log('error', error);
 
   // useLocalStorage hook takes the token key &
   // stores the value in the local storage & updates our state
@@ -43,7 +44,8 @@ function Login(props) {
   // console.log('token', token)
 
   // auth context object
-  const [, setCurrentUserState] = useAuth();
+  const [CurrentUserState, setCurrentUserState] = useAuthContext();
+  console.log(CurrentUserState)
 
   // saving a user token is side effect
   // basically, we want to call this useEffect only
@@ -63,7 +65,7 @@ function Login(props) {
     // this value will help us to redirect user after sign up
     setIsSuccessfulSubmit(true);
 
-    // updating auth state inside context object
+    // updating user state inside our auth context object
     setCurrentUserState(state => ({
       ...state,
       isLoggedIn: true, // user is logged in now
@@ -129,8 +131,9 @@ function Login(props) {
 
             {error && (
               <div className='alert alert-danger text-center' role='alert'>
-                Error occurred: {error}
+                Sorry, something went wrong. {error}
               </div>
+              // <BackendErrorMessages backendErrors={error} />
             )}
 
             {/** if we are not in login page - false value, render this input */}
