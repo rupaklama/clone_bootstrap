@@ -6,7 +6,7 @@ import { Context as AuthContext } from '../context/auth.context';
 import { Link } from 'react-router-dom';
 import { Form, Button } from 'react-bootstrap';
 
-function Signup({history}) {
+function Signup({ history }) {
   // destructuring our auth state object & action creator func from AuthContext
   // state is our current global auth state object in AuthContext
   const { state, signup } = useContext(AuthContext);
@@ -21,9 +21,6 @@ function Signup({history}) {
 
     // calling signup action creator
     signup({ username, email, password });
-
-    // redirect user to home page
-    history.push('/')
 
     // to clear form values
     setEmail('');
@@ -62,7 +59,7 @@ function Signup({history}) {
               <div className='alert alert-danger text-center' role='alert'>
                 {state.errorMessage}
               </div>
-            ) : null }
+            ) : null}
 
             <Form.Group>
               <Form.Label>Username</Form.Label>

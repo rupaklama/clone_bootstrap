@@ -5,6 +5,8 @@ import GlobalFeed from '../pages/GlobalFeed';
 import Login from '../pages/Login';
 import Signup from '../pages/Signup';
 
+
+
 const Router = () => {
   // Slug is the unique identifying part of a web address, typically at the end of the URL
   return (
@@ -14,7 +16,7 @@ const Router = () => {
       <Route path='/register' component={Signup} />
       <Route path='/articles/:slug' component={Article} />
     </Switch>
-  );
+  ); 
 };
 
 export default Router;

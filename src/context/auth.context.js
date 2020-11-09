@@ -1,8 +1,11 @@
+
+
 // import context object
 import createDataContext from './createDataContext';
 
 // import axios instance
 import authApi from '../api/auth.api';
+
 
 // our auth reducer function
 const authReducer = (state, action) => {
@@ -28,7 +31,11 @@ const authReducer = (state, action) => {
       return { errorMessage: '', token: action.payload }; // entire new state object
     case 'clear_errorMessage':
       // clearing out error message by re-setting it into empty string
-      return { ...state, errorMessage: '' } 
+      return { ...state, errorMessage: '' };
+    case 'signout':
+      // to remove user token
+      return { token: null, errorMessage: '' 
+    }
     default:
       return state;
   }
@@ -44,6 +51,9 @@ const authReducer = (state, action) => {
 // signup action creator
 const signup = dispatch => {
   // this action func going to receive an object - user data
+
+  
+
   return async ({ username, email, password }) => {
     // api request to sign up to backend server
     // if we sign up, modify our state to change to authenticated
@@ -57,6 +67,7 @@ const signup = dispatch => {
         password,
       });
       // console.log(response.data);
+     
 
       // anytime user restarts our app or refresh the browser,
       // our app state (context & component's state) completely gets wiped away - removed
@@ -70,6 +81,9 @@ const signup = dispatch => {
 
       // after successful storing of user token, we will redirect to other page
       // with history prop in Signup component
+      
+     
+
     } catch (error) {
       // console.log(err.message)
       // console.log(error.response.data);
@@ -92,15 +106,15 @@ const signin = dispatch => async ({ email, password }) => {
   try {
     const response = await authApi.post('/login', {
       email,
-      password
-    })
+      password,
+    });
 
     // storing token in localStorage
-    await localStorage.setItem('token', response.data.token)
+    await localStorage.setItem('token', response.data.token);
 
     // once we get & set user token in local storage
     // we will dispatch an action that will update user token state in context object
-    dispatch({ type: 'signIn', payload: response.data.token })
+    dispatch({ type: 'signin', payload: response.data.token });
 
     // after successful login in, we will redirect user to other page
     // with history prop in Signup component
@@ -112,14 +126,28 @@ const signin = dispatch => async ({ email, password }) => {
   }
 };
 
+// check to see if there's token in browser's local storage for auto sign
+const tryLocalSignin = dispatch => async () => {
+  const token = await localStorage.getItem('token');
+  if (token) {
+    // reusing action type - signin for login with token in local storage
+    // if there's a token, lets dispatch an action immediately
+    dispatch({ type: 'signin', payload: token });
+  }
+};
 
-// to clear out Error messages after signup & login 
+// to clear out Error messages after signup & login
 const clearErrorMessage = dispatch => () => {
-  dispatch({ type: 'clear_errorMessage'})
-}
+  dispatch({ type: 'clear_errorMessage' });
+};
 
-// sign out action creator
-const signout = dispatch => {};
+
+// sign out action creator to remove token from local storage
+// & also from our global auth context state as well
+const signout = dispatch => async () => {
+  await localStorage.removeItem('token')
+  dispatch({ type: 'signout' })
+};
 
 // we will take our reducer - authReducer & createDataContext
 // and export provider & context to use through out our application
@@ -133,7 +161,8 @@ export const { Context, Provider } = createDataContext(
     signin,
     signout,
     signup,
-    clearErrorMessage
+    clearErrorMessage,
+    tryLocalSignin,
   },
   // our initial & current auth state which will be share everywhere
   // here we will dispatch an action to put the token & error message

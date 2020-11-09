@@ -1,8 +1,24 @@
-import React from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import React, { useContext } from 'react';
+import { Link, NavLink, withRouter } from 'react-router-dom';
+import { Button } from 'react-bootstrap';
+
+import { Context as AuthContext } from '../context/auth.context';
 
 const style = { color: 'green' };
-const Header = () => {
+
+const Header = ({ history }) => {
+
+  const { signout } = useContext(AuthContext);
+
+  const handleSignOut = () => {
+    // console.log('sign out')
+    signout()
+
+    // redirect user to login page
+    history.push('/login')
+    
+  }
+
   return (
     <div>
       <nav className='navbar navbar-expand-lg navbar-light'>
@@ -26,6 +42,9 @@ const Header = () => {
                 Sign up
               </NavLink>
             </li>
+            <li className='nav-item'>
+              <Button variant="outline-danger" onClick={handleSignOut}>Sign out</Button>{' '}
+            </li>
           </ul>
         </div>
       </nav>
@@ -33,4 +52,4 @@ const Header = () => {
   );
 };
 
-export default Header;
+export default withRouter(Header);

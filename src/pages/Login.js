@@ -9,31 +9,22 @@ import { Form, Button } from 'react-bootstrap';
 function Login({ history }) {
   // destructuring our auth state object & action creator func from AuthContext
   // state is our current global auth state object in AuthContext
-  const { state, signin, clearErrorMessage } = useContext(AuthContext);
-  // console.log(state)
+  const { state, signin, tryLocalSignin } = useContext(AuthContext);
+  // console.log(state);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  // to clear error message
   useEffect(() => {
-    let isMounted = true;
-    clearErrorMessage();
-
-    return () => {
-      isMounted = false;
-    }
-    
-  }, []);
+    // auto sign in user if user is logged in
+    tryLocalSignin();
+  }, [tryLocalSignin]);
 
   const handleFormSubmit = e => {
     e.preventDefault();
 
     // calling signup action creator
     signin({ email, password });
-
-    // re-direct user to home page
-    history.push('/');
 
     // to clear form values
     setEmail('');
