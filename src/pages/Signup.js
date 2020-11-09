@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
 
 // auth context object
 import { Context as AuthContext } from '../context/auth.context';
@@ -6,34 +6,24 @@ import { Context as AuthContext } from '../context/auth.context';
 import { Link } from 'react-router-dom';
 import { Form, Button } from 'react-bootstrap';
 
-function Login({ history }) {
+function Signup({history}) {
   // destructuring our auth state object & action creator func from AuthContext
   // state is our current global auth state object in AuthContext
-  const { state, signin, clearErrorMessage } = useContext(AuthContext);
+  const { state, signup } = useContext(AuthContext);
   // console.log(state)
 
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
-  // to clear error message
-  useEffect(() => {
-    let isMounted = true;
-    clearErrorMessage();
-
-    return () => {
-      isMounted = false;
-    }
-    
-  }, []);
 
   const handleFormSubmit = e => {
     e.preventDefault();
 
     // calling signup action creator
-    signin({ email, password });
+    signup({ username, email, password });
 
-    // re-direct user to home page
-    history.push('/');
+    // redirect user to home page
+    history.push('/')
 
     // to clear form values
     setEmail('');
@@ -46,6 +36,10 @@ function Login({ history }) {
 
   const handleSetPassword = e => {
     setPassword(e.target.value);
+  };
+
+  const handleSetUsername = e => {
+    setUsername(e.target.value);
   };
 
   // loading object
@@ -62,13 +56,23 @@ function Login({ history }) {
       <div className='row justify-content-center'>
         <div className='col-xs-12 col-sm-6 col-lg-4'>
           <Form onSubmit={handleFormSubmit}>
-            <h1 className='text-xs-center'>Sign In</h1>
+            <h1 className='text-xs-center'>Sign Up</h1>
 
             {state.errorMessage ? (
               <div className='alert alert-danger text-center' role='alert'>
                 {state.errorMessage}
               </div>
-            ) : null}
+            ) : null }
+
+            <Form.Group>
+              <Form.Label>Username</Form.Label>
+              <Form.Control
+                type='text'
+                placeholder='enter name'
+                value={username}
+                onChange={handleSetUsername}
+              />
+            </Form.Group>
 
             <Form.Group controlId='formBasicEmail'>
               <Form.Label>Email address</Form.Label>
@@ -90,12 +94,12 @@ function Login({ history }) {
               />
 
               <Form.Text>
-                <Link to='/register'>Need an account? Create here!</Link>
+                <Link to='/login'>Already have an account? Login here!</Link>
               </Form.Text>
             </Form.Group>
 
             <Button variant='primary' type='submit'>
-              Login
+              Sign Up
             </Button>
           </Form>
         </div>
@@ -104,4 +108,4 @@ function Login({ history }) {
   );
 }
 
-export default Login;
+export default Signup;
